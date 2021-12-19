@@ -118,7 +118,6 @@ jobs:
           id: <<pipeline.parameters.workflow-id>>
           when: on_fail
 
-
 workflows:
   default:
     jobs:
