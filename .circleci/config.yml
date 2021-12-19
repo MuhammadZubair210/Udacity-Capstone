@@ -82,6 +82,7 @@ jobs:
               --tags project=udapeople-backend-<< pipeline.parameters.workflow-id >> \
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+            aws cloudformation describe-stack-events --stack-name udapeople-backend-9767
       # - run:
       #     name: Save backend URL in memstash
       #     command: |
