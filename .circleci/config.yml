@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  start-build:
     docker:
       # Use the same Docker base as the project
       - image: python:3.7.3-stretch
@@ -33,4 +33,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
+      - start-build
