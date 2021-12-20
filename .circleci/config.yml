@@ -83,14 +83,14 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
 
-      - run:
-          name: Save backend URL in memstash
-          command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-<<pipeline.parameters.workflow-id>>" \
-              --output text)
-            curl -H "token: 3b9cb796-d840-441f-aa56-ee81244df30c" --request GET https://api.memstash.io/values/BACKEND_URL
+      # - run:
+      #     name: Save backend URL in memstash
+      #     command: |
+      #       BACKEND_IP=$(aws ec2 describe-instances \
+      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #         --filters "Name=tag:project,Values=udapeople-backend-<<pipeline.parameters.workflow-id>>" \
+      #         --output text)
+      #       # curl -H "token: 3b9cb796-d840-441f-aa56-ee81244df30c" --request GET https://api.memstash.io/values/BACKEND_URL
    
       # - run:
       #     working_directory: ./.circleci/files
@@ -101,16 +101,16 @@ jobs:
       #         --tags project=udapeople-frontend-<< pipeline.parameters.workflow-id >> \
       #         --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
       #         --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-      # - run:
-      #     working_directory: ./.circleci/ansible
-      #     name: Add back-end ip to ansible inventory
-      #     command: |
-      #       aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
-      #         --output text >> inventory.txt
-      #       cat inventory.txt
-      #       ls -la
+      - run:
+          working_directory: ./.circleci/ansible
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+              --output text >> inventory.txt
+            cat inventory.txt
+            ls -la
       - persist_to_workspace:
           root: .
           paths:
