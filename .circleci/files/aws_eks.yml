@@ -18,8 +18,8 @@ Resources:
           Value: !Ref WorkflowID
         - Key: Name
           Value: !Sub ${WorkflowID}-EKSSecurityGroup
-      VpcId:
-        Fn::ImportValue: capstone-project-VPCID
+      # VpcId:
+      #   Fn::ImportValue: capstone-project-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
@@ -29,7 +29,7 @@ Resources:
           FromPort: 27017
           ToPort: 27017
           CidrIp: 0.0.0.0/0
-          
+
   
   EKSCluster:
       Type: AWS::EKS::Cluster
