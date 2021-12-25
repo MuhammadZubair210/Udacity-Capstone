@@ -18,8 +18,8 @@ Resources:
           Value: !Ref WorkflowID
         - Key: Name
           Value: !Sub ${WorkflowID}-EKSSecurityGroup
-      # VpcId:
-      #   Fn::ImportValue: capstone-project-VPCID
+      VpcId:
+        Fn::ImportValue: capstone-project-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
