@@ -40,6 +40,34 @@ commands:
           when: << parameters.when >>
 
 jobs:
+
+  deploy-infrastructure:
+    executor: aws
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yum install -y tar gzip
+      - run:
+          name: Setup Security Group
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file network.yml \
+              --tags project=udapeople-network-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-network-<< pipeline.parameters.workflow-id >>" \
+              --capabilities CAPABILITY_IAM \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+
+      - run:
+          name: Setup EKS Cluster
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file aws_eks.yml \
+              --tags project=udapeople-aws-eks-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-aws-eks-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
   start-build:
     docker:
       # Use the same Docker base as the project
@@ -79,70 +107,6 @@ jobs:
       - run: docker build -t zubairra786/udacity-capstone:$CIRCLE_BRANCH .
       - run: docker push zubairra786/udacity-capstone:$CIRCLE_BRANCH
 
-  deploy-infrastructure:
-    executor: aws
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
-      - run:
-          name: Setup Security Group
-          working_directory: ./.circleci/files
-          command: |
-            aws cloudformation deploy \
-              --template-file network.yml \
-              --tags project=udapeople-network-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-network-<< pipeline.parameters.workflow-id >>" \
-              --capabilities CAPABILITY_IAM \
-              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-
-      - run:
-          name: Setup EKS Cluster
-          working_directory: ./.circleci/files
-          command: |
-            aws cloudformation deploy \
-              --template-file aws_eks.yml \
-              --tags project=udapeople-aws-eks-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-aws-eks-<< pipeline.parameters.workflow-id >>" \
-              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-
-      # - run:
-      #     name: Save backend URL in memstash
-      #     command: |
-      #       BACKEND_IP=$(aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-<<pipeline.parameters.workflow-id>>" \
-      #         --output text)
-      #       # curl -H "token: 3b9cb796-d840-441f-aa56-ee81244df30c" --request GET https://api.memstash.io/values/BACKEND_URL
-   
-      # - run:
-      #     working_directory: ./.circleci/files
-      #     name: Ensure front-end infrastructure exist
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file frontend.yml \
-      #         --tags project=udapeople-frontend-<< pipeline.parameters.workflow-id >> \
-      #         --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
-      #         --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-      # - run:
-      #     working_directory: ./.circleci/ansible
-      #     name: Add back-end ip to ansible inventory
-      #     command: |
-      #       aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
-      #         --output text >> inventory.txt
-      #       cat inventory.txt
-      #       ls -la
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - .circleci/ansible/inventory.txt
-      # # Here's where you will add some code to rollback on failure
-      # - destroy_environment:
-      #     id: <<pipeline.parameters.workflow-id>>
-      #     when: on_fail
 
   deploy-container-to-eks:
     executor: node
@@ -195,11 +159,11 @@ workflows:
           filters:
             branches:
               only: [deploy-infrastructure]
-      # - start-build
-      # - build-image:
-      #     requires: [start-build]
+      - start-build
+      - build-image:
+          requires: [start-build]
       - deploy-container-to-eks:
-          # requires: [build-image]
+          requires: [build-image]
           filters:
             branches:
               only: [test-feature-branch]
