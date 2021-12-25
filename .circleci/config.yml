@@ -4,6 +4,10 @@ executors:
   aws:
     docker:
       - image: amazon/aws-cli
+  node:
+    docker:
+      - image: circleci/node:13.8.0
+
 
 parameters:
   workflow-id:
