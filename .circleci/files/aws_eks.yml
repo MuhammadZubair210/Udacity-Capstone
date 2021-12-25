@@ -48,6 +48,7 @@ Resources:
           SecurityGroupIds:
             - !Ref EKSSecurityGroup
           SubnetIds:
+          
             - Fn::ImportValue: udapeople-capstone-project-public-subnet1
             # - Fn::ImportValue: udapeople-capstone-project-public-subnet2
         Tags:
