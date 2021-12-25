@@ -11,13 +11,13 @@ Resources:
   EKSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${EnvironmentName}
+      GroupName: !Sub ${WorkflowID}
       GroupDescription: Allow port 3030 and port 3030.
-      # Tags:
-      #   - Key: Environment
-      #     Value: !Ref EnvironmentName
-      #   - Key: Name
-      #     Value: !Sub ${EnvironmentName}-EKSSecurityGroup
+      Tags:
+        - Key: Environment
+          Value: !Ref WorkflowID
+        - Key: Name
+          Value: !Sub ${WorkflowID}-EKSSecurityGroup
       VpcId:
         Fn::ImportValue: capstone-project-VPCID
       SecurityGroupIngress:
