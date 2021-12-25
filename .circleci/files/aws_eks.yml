@@ -11,7 +11,7 @@ Resources:
   EKSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub ${EnvironmentName}
+      # GroupName: !Sub ${EnvironmentName}
       GroupDescription: Allow port 3030 and port 3030.
       Tags:
         - Key: Environment
