@@ -83,6 +83,16 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
 
+      - run:
+          name: Setup EKS Cluster
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file aws_eks.yml \
+              --tags project=udapeople-backend-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+
       # - run:
       #     name: Save backend URL in memstash
       #     command: |
