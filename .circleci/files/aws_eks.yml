@@ -42,7 +42,7 @@ Resources:
         Name: Prod
         Version: "1.20"
         RoleArn: 
-          Fn::ImportValue: udapeople-capstone-project-ClusterArn
+          Fn::ImportValue: udapeople-capstone-project-ClusterRoleArn
         ResourcesVpcConfig:
           SecurityGroupIds:
             - !Ref EKSSecurityGroup
