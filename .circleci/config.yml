@@ -66,6 +66,16 @@ jobs:
             . venv/bin/activate 
             make lint
 
+  build-image:
+    machine: true
+    steps:
+      - checkout
+      - run: |
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+      - run: docker build -t zubairra786/udacity-capstone:$CIRCLE_BRANCH .
+
+      - run: docker push zubairra786/udacity-capstone:$CIRCLE_BRANCH
+
   deploy-infrastructure:
     executor: aws
     steps:
@@ -139,5 +149,7 @@ workflows:
   default:
     jobs:
       - start-build
-      - deploy-infrastructure:
+      - build-image:
           requires: [start-build]
+      # - deploy-infrastructure:
+      #     requires: [start-build]
