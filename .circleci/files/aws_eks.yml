@@ -41,8 +41,8 @@ Resources:
           SecurityGroupIds:
             - !Ref EKSSecurityGroup
           SubnetIds:
-            - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-            - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+            # - Fn::ImportValue: udapeople-capstone-project-public-subnet1
+            # - Fn::ImportValue: udapeople-capstone-project-public-subnet2
         Tags:
           - Key: "key"
             Value: "val"
@@ -58,9 +58,9 @@ Resources:
         MinSize: 1
         DesiredSize: 1
         MaxSize: 3
-      Subnets:
-        - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-        - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+      # Subnets:
+      #   - Fn::ImportValue: udapeople-capstone-project-public-subnet1
+      #   - Fn::ImportValue: udapeople-capstone-project-public-subnet2
 
 
 Outputs:
