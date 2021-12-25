@@ -44,7 +44,7 @@ Resources:
         Version: "1.20"
         RoleArn: 
           Fn::ImportValue: udapeople-capstone-project-ClusterRoleArn
-        ResourcesVpcConfig:
+        # ResourcesVpcConfig:
           # SecurityGroupIds:
           #   - !Ref EKSSecurityGroup
           # # SubnetIds:
