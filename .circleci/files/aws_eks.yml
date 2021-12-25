@@ -4,7 +4,7 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
-    Default: udapeople-capstone-project
+    Default: capstone-project
 
 Resources:
 
