@@ -175,9 +175,9 @@ jobs:
       - run:
           name: Deploy To Kubernetes Cluster
           command: |
-            aws eks --region us-west-2 update-kubeconfig --name udacity-capstone
-            kubectl apply -f kube/deployment.yaml
+            aws eks --region us-west-2 update-kubeconfig --name Prod
             kubectl apply -f kube/loadbalancer.yaml
+            kubectl apply -f kube/deployment.yaml
             kubectl get nodes
             kubectl get deployment
 
