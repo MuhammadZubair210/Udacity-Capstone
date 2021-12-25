@@ -74,14 +74,15 @@ jobs:
           name: Install dependencies
           command: yum install -y tar gzip
       - run:
-          name: Ensure back-end infrastructure exists
+          name: Setup Security Group
           working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file backend.yml \
-              --tags project=udapeople-backend-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+              --template-file network.yml \
+              --tags project=udapeople-network-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-network-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+              --capabilities CAPABILITY_NAMED_IAM
 
       - run:
           name: Setup EKS Cluster
@@ -111,21 +112,21 @@ jobs:
       #         --tags project=udapeople-frontend-<< pipeline.parameters.workflow-id >> \
       #         --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
       #         --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-      - run:
-          working_directory: ./.circleci/ansible
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
-              --output text >> inventory.txt
-            cat inventory.txt
-            ls -la
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure
+      # - run:
+      #     working_directory: ./.circleci/ansible
+      #     name: Add back-end ip to ansible inventory
+      #     command: |
+      #       aws ec2 describe-instances \
+      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #         --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+      #         --output text >> inventory.txt
+      #       cat inventory.txt
+      #       ls -la
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - .circleci/ansible/inventory.txt
+      # # Here's where you will add some code to rollback on failure
       # - destroy_environment:
       #     id: <<pipeline.parameters.workflow-id>>
       #     when: on_fail
