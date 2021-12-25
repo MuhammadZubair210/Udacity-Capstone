@@ -180,6 +180,8 @@ jobs:
             kubectl apply -f kube/deployment.yaml
             kubectl get nodes
             kubectl get deployment
+            kubectl get pod
+            kubectl get services
       - run:
           name: Rolling Restart
           command: |
