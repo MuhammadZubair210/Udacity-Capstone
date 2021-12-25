@@ -20,7 +20,7 @@ Resources:
         - Key: Name
           Value: !Sub ${WorkflowID}-EKSSecurityGroup
       VpcId:
-        Fn::ImportValue: udapeople-capstone-project-VPCID
+        Fn::ImportValue: udapeople-network-9767-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
@@ -43,13 +43,13 @@ Resources:
         Name: Prod
         Version: "1.20"
         RoleArn: 
-          Fn::ImportValue: udapeople-capstone-project-ClusterRoleArn
+          Fn::ImportValue: udapeople-network-9767-ClusterRoleArn
         # ResourcesVpcConfig:
           # SecurityGroupIds:
           #   - !Ref EKSSecurityGroup
           # # SubnetIds:
-          # #   - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-            # - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+          # #   - Fn::ImportValue: udapeople-network-9767-public-subnet1
+            # - Fn::ImportValue: udapeople-network-9767-public-subnet2
         Tags:
           - Key: "key"
             Value: "val"
@@ -59,14 +59,14 @@ Resources:
     Properties:
       ClusterName: !Ref EKSCluster
       NodeRole:
-        Fn::ImportValue: udapeople-capstone-project-NodeGroupArn
+        Fn::ImportValue: udapeople-network-9767-NodeGroupArn
       ScalingConfig:
         MinSize: 1
         DesiredSize: 1
         MaxSize: 3
       # Subnets:
-      #   - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-        # - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+      #   - Fn::ImportValue: udapeople-network-9767-public-subnet1
+        # - Fn::ImportValue: udapeople-network-9767-public-subnet2
 
 
 Outputs:
