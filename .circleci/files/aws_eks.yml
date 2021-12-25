@@ -4,37 +4,67 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
-    Default: udapeople-kk1j287dhjppmz408
+    Default: udapeople-capstone-project
 
 Resources:
+
+  EKSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub UdaPeople-${ID}
+      GroupDescription: Allow port 22 and port 3030.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
   
   EKSCluster:
       Type: AWS::EKS::Cluster
       Properties:
         Name: Prod
         Version: "1.20"
-        RoleArn: "arn:aws:iam::012345678910:role/eks-service-role-AWSServiceRoleForAmazonEKS-EXAMPLEBQ4PI"
+        RoleArn: 
+          Fn::ImportValue: udapeople-capstone-project-ClusterArn
         ResourcesVpcConfig:
           SecurityGroupIds:
-            - sg-6979fe18
+            - !Ref EKSSecurityGroup
           SubnetIds:
-            - subnet-6782e71e
-            - subnet-e7e761ac
-          EndpointPublicAccess: false
-          EndpointPrivateAccess: true
-          PublicAccessCidrs: [ "1.1.1.2/32" ]
-        Logging:
-          ClusterLogging:
-            EnabledTypes:
-              - Type: api
-              - Type: audit
+            - Fn::ImportValue: udapeople-capstone-project-public-subnet1
+            - Fn::ImportValue: udapeople-capstone-project-public-subnet2
         Tags:
           - Key: "key"
             Value: "val"
 
+
+  EKSNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodeRole:
+        Fn::ImportValue: udapeople-capstone-project-NodeGroupArn
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 1
+        MaxSize: 3
+      Subnets:
+        - Fn::ImportValue: udapeople-capstone-project-public-subnet1
+        - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+
+
 Outputs:
-  WorkflowID:
-    Value: !Sub ${WorkflowID}
-    Description: URL for website hosted on S3
+
+  ClusterArn:
+    Description: The EKS Cluster Arn
+    Value: !GetAtt EKSCluster.Arn
     Export:
-      Name: WorkflowID
+      Name: !Sub "${AWS::StackName}-ClusterArn"
+  NodeGroupArn:
+    Description: The EKS Node ID
+    Value: !GetAtt EKSNodeGroup.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-NodeArn"
