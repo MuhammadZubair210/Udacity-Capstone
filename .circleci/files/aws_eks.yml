@@ -20,7 +20,7 @@ Resources:
         - Key: Name
           Value: !Sub ${WorkflowID}-EKSSecurityGroup
       VpcId:
-        Fn::ImportValue: capstone-project-VPCID
+        Fn::ImportValue: udapeople-capstone-project-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
