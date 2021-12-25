@@ -4,6 +4,10 @@ executors:
   aws:
     docker:
       - image: amazon/aws-cli
+  node:
+    docker:
+      - image: circleci/node:13.8.0
+
 
 parameters:
   workflow-id:
@@ -36,6 +40,34 @@ commands:
           when: << parameters.when >>
 
 jobs:
+
+  deploy-infrastructure:
+    executor: aws
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yum install -y tar gzip
+      - run:
+          name: Setup Security Group
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file network.yml \
+              --tags project=udapeople-network-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-network-<< pipeline.parameters.workflow-id >>" \
+              --capabilities CAPABILITY_IAM \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+
+      - run:
+          name: Setup EKS Cluster
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file aws_eks.yml \
+              --tags project=udapeople-aws-eks-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-aws-eks-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
   start-build:
     docker:
       # Use the same Docker base as the project
@@ -59,85 +91,95 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
-      # run lint!
+  lint-code:
+    docker:
+      # Use the same Docker base as the project
+      - image: python:3.7.3-stretch
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+          paths:
+            - ./venv
       - run:
           name: run lint
           command: |
+            # Install hadolint
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
             . venv/bin/activate 
             make lint
 
-  deploy-infrastructure:
-    executor: aws
+  build-image:
+    machine: true
+    steps:
+      - checkout
+      - run: |
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+      - run: docker build -t zubairra786/udacity-capstone:$CIRCLE_BRANCH .
+      - run: docker push zubairra786/udacity-capstone:$CIRCLE_BRANCH
+
+
+  deploy-container-to-eks:
+    executor: node
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
-      - run:
-          name: Setup Security Group
-          working_directory: ./.circleci/files
+          name: Install AWS CLI dependencies
           command: |
-            aws cloudformation deploy \
-              --template-file network.yml \
-              --tags project=udapeople-network-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-network-<< pipeline.parameters.workflow-id >>" \
-              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-              --capabilities CAPABILITY_NAMED_IAM
-
+            ls -la
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            aws --version
       - run:
-          name: Setup EKS Cluster
-          working_directory: ./.circleci/files
+          name: Install Kubectl
           command: |
-            aws cloudformation deploy \
-              --template-file aws_eks.yml \
-              --tags project=udapeople-aws-eks-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-aws-eks-<< pipeline.parameters.workflow-id >>" \
-              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-
-      # - run:
-      #     name: Save backend URL in memstash
-      #     command: |
-      #       BACKEND_IP=$(aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-<<pipeline.parameters.workflow-id>>" \
-      #         --output text)
-      #       # curl -H "token: 3b9cb796-d840-441f-aa56-ee81244df30c" --request GET https://api.memstash.io/values/BACKEND_URL
-   
-      # - run:
-      #     working_directory: ./.circleci/files
-      #     name: Ensure front-end infrastructure exist
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file frontend.yml \
-      #         --tags project=udapeople-frontend-<< pipeline.parameters.workflow-id >> \
-      #         --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
-      #         --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
-      # - run:
-      #     working_directory: ./.circleci/ansible
-      #     name: Add back-end ip to ansible inventory
-      #     command: |
-      #       aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
-      #         --output text >> inventory.txt
-      #       cat inventory.txt
-      #       ls -la
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - .circleci/ansible/inventory.txt
-      # # Here's where you will add some code to rollback on failure
-      # - destroy_environment:
-      #     id: <<pipeline.parameters.workflow-id>>
-      #     when: on_fail
-
-
-
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+            curl -o kubectl.sha256 https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl.sha256
+            chmod +x ./kubectl
+            mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+            echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+            kubectl version --short --client
+      - run:
+          name: Install ekstcl
+          command: |
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            sudo mv /tmp/eksctl /usr/local/bin
+            eksctl version
+      - run:
+          name: Deploy To Kubernetes Cluster
+          command: |
+            aws eks --region us-west-2 update-kubeconfig --name Prod
+            kubectl apply -f kube/loadbalancer.yaml
+            kubectl apply -f kube/deployment.yaml
+            kubectl get nodes
+            kubectl get deployment
+            kubectl get pod
+            kubectl get services
+      - run:
+          name: Rolling Restart
+          command: |
+            kubectl --kubeconfig ~/.kube/config rollout restart deployment udacity-capstone
 
 
 workflows:
   default:
     jobs:
-      - start-build
       - deploy-infrastructure:
+          filters:
+            branches:
+              only: [deploy-infrastructure]
+      - start-build
+      - lint-code:
           requires: [start-build]
+      - build-image:
+          requires: [lint-code]
+      - deploy-container-to-eks:
+          requires: [build-image]
+          filters:
+            branches:
+              only: [test-feature-branch]

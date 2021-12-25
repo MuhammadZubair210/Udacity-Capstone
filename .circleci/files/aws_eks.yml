@@ -4,7 +4,7 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
-    Default: udapeople-capstone-project
+    Default: capstone-project
 
 Resources:
 
@@ -20,7 +20,7 @@ Resources:
         - Key: Name
           Value: !Sub ${WorkflowID}-EKSSecurityGroup
       VpcId:
-        Fn::ImportValue: capstone-project-VPCID
+        Fn::ImportValue: udapeople-network-9767-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
@@ -37,36 +37,36 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   
-  # EKSCluster:
-  #     Type: AWS::EKS::Cluster
-  #     Properties:
-  #       Name: Prod
-  #       Version: "1.20"
-  #       RoleArn: 
-  #         Fn::ImportValue: udapeople-capstone-project-ClusterRoleArn
-  #       ResourcesVpcConfig:
-  #         SecurityGroupIds:
-  #           - !Ref EKSSecurityGroup
-  #         SubnetIds:
-  #           - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-  #           - Fn::ImportValue: udapeople-capstone-project-public-subnet2
-  #       Tags:
-  #         - Key: "key"
-  #           Value: "val"
+  EKSCluster:
+      Type: AWS::EKS::Cluster
+      Properties:
+        Name: Prod
+        Version: "1.20"
+        RoleArn: 
+          Fn::ImportValue: udapeople-network-9767-ClusterRoleArn
+        ResourcesVpcConfig:
+          SecurityGroupIds:
+            - !Ref EKSSecurityGroup
+          SubnetIds:
+            - Fn::ImportValue: udapeople-network-9767-public-subnet1
+            - Fn::ImportValue: udapeople-network-9767-public-subnet2
+        Tags:
+          - Key: "key"
+            Value: "val"
 
-  # EKSNodeGroup:
-  #   Type: AWS::EKS::Nodegroup
-  #   Properties:
-  #     ClusterName: !Ref EKSCluster
-  #     NodeRole:
-  #       Fn::ImportValue: udapeople-capstone-project-NodeGroupArn
-  #     ScalingConfig:
-  #       MinSize: 1
-  #       DesiredSize: 1
-  #       MaxSize: 3
-      # Subnets:
-      #   - Fn::ImportValue: udapeople-capstone-project-public-subnet1
-      #   - Fn::ImportValue: udapeople-capstone-project-public-subnet2
+  EKSNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodeRole:
+        Fn::ImportValue: udapeople-network-9767-NodeGroupArn
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 1
+        MaxSize: 3
+      Subnets:
+        - Fn::ImportValue: udapeople-network-9767-public-subnet1
+        - Fn::ImportValue: udapeople-network-9767-public-subnet2
 
 
 Outputs:
