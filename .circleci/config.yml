@@ -180,8 +180,10 @@ jobs:
             kubectl apply -f kube/deployment.yaml
             kubectl get nodes
             kubectl get deployment
-
-
+      - run:
+          name: Rolling Restart
+          command: |
+            kubectl --kubeconfig ~/.kube/config rollout restart deployment udacity-capstone
 
 
 workflows:
