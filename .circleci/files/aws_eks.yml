@@ -29,6 +29,7 @@ Resources:
           FromPort: 27017
           ToPort: 27017
           CidrIp: 0.0.0.0/0
+          
   
   EKSCluster:
       Type: AWS::EKS::Cluster
