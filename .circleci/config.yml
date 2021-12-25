@@ -73,15 +73,15 @@ jobs:
       - run:
           name: Install dependencies
           command: yum install -y tar gzip
-      # - run:
-      #     name: Ensure back-end infrastructure exists
-      #     working_directory: ./.circleci/files
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file backend.yml \
-      #         --tags project=udapeople-backend-<< pipeline.parameters.workflow-id >> \
-      #         --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
-      #         --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
+      - run:
+          name: Ensure back-end infrastructure exists
+          working_directory: ./.circleci/files
+          command: |
+            aws cloudformation deploy \
+              --template-file network.yml \
+              --tags project=udapeople-backend-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
 
       - run:
           name: Setup EKS Cluster
