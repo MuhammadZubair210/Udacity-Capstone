@@ -89,8 +89,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file aws_eks.yml \
-              --tags project=udapeople-aws_eks-<< pipeline.parameters.workflow-id >> \
-              --stack-name "udapeople-aws_eks-<< pipeline.parameters.workflow-id >>" \
+              --tags project=udapeople-aws-eks-<< pipeline.parameters.workflow-id >> \
+              --stack-name "udapeople-aws-eks-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"
 
       # - run:
