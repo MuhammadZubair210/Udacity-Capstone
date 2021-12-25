@@ -44,12 +44,12 @@ Resources:
         Version: "1.20"
         RoleArn: 
           Fn::ImportValue: udapeople-network-9767-ClusterRoleArn
-        # ResourcesVpcConfig:
-          # SecurityGroupIds:
-          #   - !Ref EKSSecurityGroup
-          # # SubnetIds:
-          # #   - Fn::ImportValue: udapeople-network-9767-public-subnet1
-            # - Fn::ImportValue: udapeople-network-9767-public-subnet2
+        ResourcesVpcConfig:
+          SecurityGroupIds:
+            - !Ref EKSSecurityGroup
+          SubnetIds:
+            - Fn::ImportValue: udapeople-network-9767-public-subnet1
+            - Fn::ImportValue: udapeople-network-9767-public-subnet2
         Tags:
           - Key: "key"
             Value: "val"
@@ -64,9 +64,9 @@ Resources:
         MinSize: 1
         DesiredSize: 1
         MaxSize: 3
-      # Subnets:
-      #   - Fn::ImportValue: udapeople-network-9767-public-subnet1
-        # - Fn::ImportValue: udapeople-network-9767-public-subnet2
+      Subnets:
+        - Fn::ImportValue: udapeople-network-9767-public-subnet1
+        - Fn::ImportValue: udapeople-network-9767-public-subnet2
 
 
 Outputs:
