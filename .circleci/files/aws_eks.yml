@@ -11,16 +11,23 @@ Resources:
   EKSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub UdaPeople-${ID}
-      GroupDescription: Allow port 22 and port 3030.
+      GroupName: !Sub ${EnvironmentName}
+      GroupDescription: Allow port 3030 and port 3030.
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-EKSSecurityGroup
+      VpcId:
+        Fn::ImportValue: capstone-project-VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3030
           ToPort: 3030
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 3030
-          ToPort: 3030
+          FromPort: 27017
+          ToPort: 27017
           CidrIp: 0.0.0.0/0
   
   EKSCluster:
