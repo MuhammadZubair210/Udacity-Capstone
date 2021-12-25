@@ -48,7 +48,6 @@ Resources:
           - Key: "key"
             Value: "val"
 
-
   EKSNodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
